@@ -1,3 +1,23 @@
+const pokemonName = document.querySelector("#pokemon");
+const flavourTextP = document.querySelector("#flavour-text");
+const attacksName = document.querySelector("#attacks");
+const setNameP = document.querySelector("#set-name");
+const stageP = document.querySelector("#stage");
+const image = document.querySelector("#card-image");
+
+const answer = document.querySelector("#answer");
+const submitBtn = document.querySelector("#submit");
+
+const attackHint = document.querySelector("#hint-attack");
+const setHint = document.querySelector("#hint-set");
+const stageHint = document.querySelector("#hint-stage");
+
+let cardName = "";
+let cardImage = "";
+
+let maxPoints = 4;
+
+
 //fetches all sets and picks a random card from a random set
 async function getAllSets() {
     let setsList = localStorage.getItem('setsList');
@@ -98,8 +118,8 @@ async function getRandomCardFromSet(setID) {
             //fetch the data for the random card
             card = await getCardFromSet(setID, randomCardNumber);
             
-            //repeat if the card's supertype isn't "Pokémon"
-        } while (card.supertype !== "Pokémon");
+            //repeat if the card's supertype isn't "Pokémon" or the card doesn't contain flavor text
+        } while (card.supertype !== "Pokémon" || !card.flavorText);
 
         displayCard(card);
         
@@ -110,14 +130,61 @@ async function getRandomCardFromSet(setID) {
 
 //displays the random card's details
 function displayCard(card) {
-    console.log('Random Card:', card);
-    const cardName = card.name;
+    cardName = card.name;
     const flavorText = card.flavorText;
     const attacks = card.attacks;
     const setName = card.set.name;
-    const cardImage = card.images.small;
+    const stage = card.subtypes;
+    cardImage = card.images.small;
+
+    const randomNum = Math.floor(Math.random() * attacks.length);
+    const randomAttack = attacks[randomNum].name;
+    console.log(randomAttack);
+    flavourTextP.innerHTML = flavorText;
+    attacksName.innerHTML = randomAttack;
+    setNameP.innerHTML = setName;
+    stageP.innerHTML = stage;
 };
 
-getAllSets();
+//shows the attack name hint and deducts a point from max points
+function useAttackHint() {
+    maxPoints --;
+    console.log(maxPoints);
+    attacksName.classList.add("show");
+};
+
+//shows the set name hint and deducts a point from max points
+function useSetHint() {
+    maxPoints --;
+    console.log(maxPoints);
+    setNameP.classList.add("show");
+};
+
+//shows the pokmeon stage hint and deducts a point from max points
+function useStageHint() {
+    maxPoints --;
+    console.log(maxPoints);
+    stageP.classList.add("show");
+};
+
+attackHint.addEventListener("click", useAttackHint);
+setHint.addEventListener("click", useSetHint);
+stageHint.addEventListener("click", useStageHint);
+
+//checks the answer inputed by the user with the card name. If the answer is right then it will also tell the user how many points they got
+function checkAnswer() {
+    const response = answer.value;
+    if(response.toLowerCase() === cardName.toLowerCase()) {
+        console.log(`you win! You scored ${maxPoints} points`);
+        pokemonName.innerHTML = cardName;
+        image.setAttribute("src", cardImage);
+    } else {
+        console.log(`Sorry the correct answer was ${cardName}`);
+    }
+}
+
+submitBtn.addEventListener("click", checkAnswer);
+
+// getAllSets();
 
 
